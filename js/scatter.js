@@ -228,17 +228,17 @@
 
   function startIntro() { if (introStart === null && !introDone) { introStart = performance.now(); kick(); } }
 
-  var sentinel = document.createElement("div");
-  sentinel.style.cssText = "position:absolute;left:0;right:0;top:0;height:" + D.introHeight + "px;pointer-events:none";
-  zone.appendChild(sentinel);
+  // Intro starts when the Catalogue section reaches ~60 % of the viewport height
+  // (the user has scrolled past the hero and the quick-request card), not as soon as the zone appears.
+  var trigger = document.getElementById("catalogue") || zone;
   if ("IntersectionObserver" in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
-        if (e.isIntersecting && e.intersectionRatio >= 0.2) { startIntro(); io.disconnect(); }
-        else if (!e.isIntersecting && e.boundingClientRect.bottom < 0 && introStart === null) { introDone = true; io.disconnect(); kick(); }
+        // intersecting = top of the section is above the 60 % line; bottom < 0 = page opened further down
+        if (e.isIntersecting || e.boundingClientRect.bottom < 0) { startIntro(); io.disconnect(); }
       });
-    }, { threshold: [0, 0.2] });
-    io.observe(sentinel);
+    }, { rootMargin: "0px 0px -40% 0px", threshold: 0 });
+    io.observe(trigger);
   } else { introDone = true; }
 
   // ---------- drift ----------
