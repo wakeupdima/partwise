@@ -227,6 +227,8 @@ def main():
         tpl = tpl.replace(f"<!--SVG:{k}-->", v)
     assert "<!--SVG:" not in tpl
     (ROOT / "index.html").write_text(tpl)
+    import subprocess
+    subprocess.run([sys.executable, str(ROOT / "tools" / "stamp.py")], check=True)
     print("ok", {k: len(v) for k, v in svgs.items()}, "motion css", len(css))
 
 
