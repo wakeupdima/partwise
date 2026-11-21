@@ -48,9 +48,11 @@
   /* ---------- hero scales down on narrower screens (design is a 1440 composition) ---------- */
   var hero = $(".hero"), stage = $(".hero__stage");
   function fitHero() {
-    var s = Math.min(1, document.documentElement.clientWidth / 1440);
+    // ≤760 px: mobile hero composition (390 × 1010, Figma 309:2837); otherwise the 1440 × 980 desktop one
+    var w = document.documentElement.clientWidth, mobile = w <= 760;
+    var s = Math.min(1, w / (mobile ? 390 : 1440));
     stage.style.setProperty("--hero-scale", s);
-    hero.style.height = (980 * s) + "px";
+    hero.style.height = ((mobile ? 1010 : 980) * s) + "px";
     var how = $(".how__stage");
     if (how) how.style.setProperty("--how-scale", Math.min(1, how.clientWidth / 788));
   }
