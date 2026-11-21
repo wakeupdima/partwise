@@ -214,6 +214,16 @@ def main():
     allm = json.load(open(motdir / "all.json"))["nodes"]
     cat = json.load(open(motdir / "catalogue.json"))["nodes"]
     hero_nodes = [n for n in allm if n["nodeId"].startswith("278:") and n["nodeId"] < "278:3200"]
+    # Hero lift: Figma raises the upper module by ~198 px, which slides it over the headline.
+    # Keep the same curves/timing but scale the lift so the module stops 16 px below the title
+    # (rest top y=309, title bottom y=223 → 70 px of travel out of 190).
+    HERO_LIFT_K = 0.37
+    def scale_lift(css_text):
+        return re.sub(r"(--motion-translate-[xy]:\s*)(-?[\d.]+)",
+                      lambda m: m.group(1) + ("%.3f" % (float(m.group(2)) * HERO_LIFT_K)), css_text)
+    for n in hero_nodes:
+        if n["nodeId"] != "278:2862":
+            n["codeSnippets"]["css"] = scale_lift(n["codeSnippets"]["css"])
     css = motion_css(hero_nodes) + "\n" + motion_css(cat) + "\n" + (ROOT / "src" / "how-motion.css").read_text()
     sys.path.insert(0, str(ROOT / "tools"))
     from motion_to_transform import convert
